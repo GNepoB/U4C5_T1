@@ -1,61 +1,64 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "pico/time.h"
+#include "hardware/timer.h"
 
-//Define os pinos dos LED's
-#define LED_vermelho 13
-#define LED_verde 11
-#define LED_amarelo 12
-//Define o intervalo de tempo desejado (em ms)
-#define intervalo 3000
+// Definição dos pinos do LED RGB
+#define LED_VERMELHO 13
+#define LED_AMARELO 12
+#define LED_VERDE 11
 
-bool led_on = true;
-bool led_off = false;
+// Intervalos de tempo
+#define INTERVALO_SEMAFORO 3000  // 3 segundos
+#define INTERVALO_MENSAGEM 1000   // 1 segundo
+
+// Estado inicial
+volatile int estado = 0;
+
+// Função de callback do temporizador para mudar o estado do semáforo
+bool repeating_timer_callback(struct repeating_timer *t) {
+    switch (estado) {
+        case 0:
+            gpio_put(LED_VERMELHO, 0);
+            gpio_put(LED_AMARELO, 1);
+            estado = 1;
+            break;
+        case 1:
+            gpio_put(LED_AMARELO, 0);
+            gpio_put(LED_VERDE, 1);
+            estado = 2;
+            break;
+        case 2:
+            gpio_put(LED_VERDE, 0);
+            gpio_put(LED_VERMELHO, 1);
+            estado = 0;
+            break;
+    }
+    return true; // Continua a repetição do temporizador
+}
 
 int main() {
     stdio_init_all();
 
-    // Inicializa os LED's como saída
-    gpio_init(LED_vermelho);
-    gpio_set_dir(LED_vermelho, GPIO_OUT);
-    
-    gpio_init(LED_verde);
-    gpio_set_dir(LED_verde, GPIO_OUT);
-    
-    gpio_init(LED_amarelo);
-    gpio_set_dir(LED_amarelo, GPIO_OUT);
+    // Inicializa os LEDs como saída
+    gpio_init(LED_VERMELHO);
+    gpio_set_dir(LED_VERMELHO, GPIO_OUT);
+    gpio_init(LED_AMARELO);
+    gpio_set_dir(LED_AMARELO, GPIO_OUT);
+    gpio_init(LED_VERDE);
+    gpio_set_dir(LED_VERDE, GPIO_OUT);
 
-    // Estado inicial: LED Verde ligado, os outros apagados
-    int estado = 0;
-    gpio_put(LED_vermelho, led_off);
-    gpio_put(LED_amarelo, led_off);
-    gpio_put(LED_verde, led_on);
+    // Define o estado inicial: vermelho ligado
+    gpio_put(LED_VERMELHO, 1);
+    gpio_put(LED_AMARELO, 0);
+    gpio_put(LED_VERDE, 0);
 
-    absolute_time_t proximo_tempo = make_timeout_time_ms(intervalo);
+    // Configuração do temporizador repetitivo
+    struct repeating_timer timer;
+    add_repeating_timer_ms(INTERVALO_SEMAFORO, repeating_timer_callback, NULL, &timer);
 
+    // Loop principal para exibir mensagens a cada segundo
     while (true) {
-        if (time_reached(proximo_tempo)) {
-            // Atualiza o estado do semáforo (verde -> amarelo -> vermelho -> verde -> ...)
-            if (estado == 0) {
-                gpio_put(LED_verde, led_off);
-                gpio_put(LED_amarelo, led_on);
-                estado = 1;
-            } else if (estado == 1) {
-                gpio_put(LED_amarelo, led_off);
-                gpio_put(LED_vermelho, led_on);
-                estado = 2;
-            } else if (estado == 2) {
-                gpio_put(LED_vermelho, led_off);
-                gpio_put(LED_verde, led_on);
-                estado = 0;
-            }
-
-            printf("3 segundos se passaram. Alterando LED acesso");
-
-            // Atualiza o tempo da próxima troca
-            proximo_tempo = make_timeout_time_ms(intervalo);
-        }
-
-        sleep_ms(1);  // Pequena pausa para eficiência
+        printf("Sistema funcionando - Estado atual: %d\n", estado);
+        sleep_ms(INTERVALO_MENSAGEM);
     }
 }
