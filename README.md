@@ -1,1 +1,13 @@
-Calcula o próximo tempo absoluto em que a ação deve ocorrer. A função get_absolute_time() retorna o tempo atual do sistema. A função delayed_by_us() calcula um tempo futuro adicionando o intervalo em microsegundos ao tempo atual. Ao final, Calcula o próximo tempo de despertar, adicionando o intervalo de 1 segundo ao tempo atual.
+# Atividade 1 - Semáforo (Unidade 4, Cáp. 5)
+
+## Aluno
+Gabriel Neponuceno Batista
+
+## Funcionamento
+- O sistema inicializa com o LED vermelho aceso.
+- A cada 3 segundos, o semáforo muda de estado na seguinte ordem:
+  Vermelho -> Amarelo
+  Amarelo -> Verde
+  Verde -> Vermelho
+- No terminal, mensagens são exibidas a cada segundo para indicar o estado atual do semáforo.
+
