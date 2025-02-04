@@ -3,7 +3,7 @@
 ## Aluno
 Gabriel Neponuceno Batista
 
-## 📺 Demonstração
+## 📺 Demonstração + Instruções de uso
 
 - **Simulação no Wokwi:** [Assista no YouTube](https://www.youtube.com/watch?v=iKw9nY5KV_8&ab_channel=GABRIELNEPONUCENOBATISTA)
 
